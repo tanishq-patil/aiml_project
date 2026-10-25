@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI Prediction System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 30px 15px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px #00000012;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0f766e;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .range {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #0f766e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 25px;
+        }
+
+        button:hover {
+            background: #115e59;
+        }
+
+        .result {
+            text-align: center;
+            padding: 22px;
+            margin-top: 25px;
+            background: #ecfdf5;
+            border-radius: 10px;
+        }
+
+        .result h2 {
+            margin: 8px 0;
+            font-size: 32px;
+        }
+
+        .error {
+            color: #b91c1c;
+            background: #fef2f2;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .warning {
+            color: #92400e;
+            background: #fffbeb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .note {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>AQI Prediction System</h1>
+    <p class="subtitle">
+        Enter pollutant measurements to estimate the Air Quality Index.
+    </p>
+
+    <form method="POST">
+        <div class="form-grid">
+
+            {% for feature in features %}
+            <div>
+                <label for="{{ feature }}">{{ feature }}</label>
+
+                <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    id="{{ feature }}"
+                    name="{{ feature }}"
+                    placeholder="Enter {{ feature }}"
+                    value="{{ values.get(feature, '') }}"
+                    required
+                >
+
+                <div class="range">
+                    Training-data range:
+                    {{ "%.2f"|format(ranges[feature]["min"]) }}
+                    –
+                    {{ "%.2f"|format(ranges[feature]["max"]) }}
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <button type="submit">Predict AQI</button>
+    </form>
+
+    {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    {% if warnings %}
+        <div class="warning">
+            <strong>Range warning:</strong>
+            <ul>
+                {% for warning in warnings %}
+                    <li>{{ warning }}</li>
+                {% endfor %}
+            </ul>
+            Prediction may be less reliable outside the training ranges.
+        </div>
+    {% endif %}
+
+    {% if prediction is not none %}
+        <div class="result">
+            <p>Predicted Air Quality Index</p>
+            <h2>{{ "%.2f"|format(prediction) }}</h2>
+            <strong>{{ category }}</strong>
+        </div>
+    {% endif %}
+
+    <p class="note">
+        This is a machine-learning estimate, not an official air-quality
+        measurement. Enter pollutant values in the same units and measurement
+        format as the training dataset.
+    </p>
+
+</div>
+</body>
+</html>
