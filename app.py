@@ -11,8 +11,22 @@ bundle = joblib.load("aqi_model.pkl")
 scaler = bundle["scaler"]
 poly = bundle["poly"]
 model = bundle["model"]
+best_model = bundle.get("best_model")
 features = bundle["features"]
 ranges = bundle["ranges"]
+units = {
+    "PM2.5": "µg/m³",
+    "PM10": "µg/m³",
+    "NO": "µg/m³",
+    "NO2": "µg/m³",
+    "NOx": "µg/m³",
+    "NH3": "µg/m³",
+    "CO": "mg/m³",
+    "SO2": "µg/m³",
+    "O3": "µg/m³",
+    "Benzene": "µg/m³",
+    "Toluene": "µg/m³",
+}
 
 
 def get_aqi_category(aqi):
@@ -34,14 +48,19 @@ def get_aqi_category(aqi):
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    prediction = None
-    category = None
+    predictions = []
     error = None
     warnings = []
     values = {}
 
     if request.method == "POST":
         try:
+            if best_model is None:
+                raise ValueError(
+                    "The optimized model is missing from aqi_model.pkl. "
+                    "Run the notebook's model export cell to update it."
+                )
+
             for col in features:
                 value = float(request.form[col])
 
@@ -67,16 +86,24 @@ def home():
                 columns=features
             )
 
-            # Apply the same preprocessing as training
+            # lr2 uses the scaler and polynomial features saved with it.
             scaled_data = scaler.transform(user_data)
             polynomial_data = poly.transform(scaled_data)
 
-            # Predict AQI
-            prediction = float(
-                model.predict(polynomial_data)[0]
-            )
-
-            category = get_aqi_category(prediction)
+            predictions = [
+                {
+                    "name": "Polynomial model",
+                    "aqi": float(model.predict(polynomial_data)[0])
+                },
+                {
+                    "name": "Optimized Polyomial model",
+                    "aqi": float(best_model.predict(user_data)[0])
+                }
+            ]
+            for prediction in predictions:
+                prediction["category"] = get_aqi_category(
+                    prediction["aqi"]
+                )
 
         except (ValueError, TypeError) as e:
             error = str(e) or "Please enter valid numeric values."
@@ -85,9 +112,9 @@ def home():
         "index.html",
         features=features,
         ranges=ranges,
+        units=units,
         values=values,
-        prediction=prediction,
-        category=category,
+        predictions=predictions,
         error=error,
         warnings=warnings
     )

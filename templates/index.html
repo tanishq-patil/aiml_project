@@ -7,124 +7,444 @@
     <title>AQI Prediction System</title>
 
     <style>
+        :root {
+            color-scheme: light;
+            --ink: #16332e;
+            --muted: #6b817b;
+            --green: #137b68;
+            --green-dark: #0c4c43;
+            --line: #e4ede8;
+            --surface: #ffffff;
+            --canvas: #f3f7f4;
+        }
+
         * {
             box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: #f1f5f9;
+            min-height: 100vh;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(ellipse at 10% 0%, #dcefe7 0, transparent 36rem),
+                var(--canvas);
             margin: 0;
-            padding: 30px 15px;
-            color: #1e293b;
+            padding: 44px 20px;
+            color: var(--ink);
         }
 
         .container {
-            max-width: 850px;
+            max-width: 1000px;
             margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px #00000012;
+            background: var(--surface);
+            border: 1px solid #e7eee9;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 24px 70px #173c3020;
+        }
+
+        .hero {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            padding: 38px 48px 36px;
+            color: white;
+            background: linear-gradient(115deg, #103f38, #137b68 72%, #218c72);
+        }
+
+        .hero::after {
+            position: absolute;
+            z-index: -1;
+            top: -160px;
+            right: -85px;
+            width: 420px;
+            height: 420px;
+            border: 1px solid #ffffff20;
+            border-radius: 50%;
+            box-shadow: 0 0 0 42px #ffffff0a, 0 0 0 84px #ffffff08;
+            content: "";
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 18px;
+            color: #c8eee0;
+            font-size: 11px;
+            font-weight: 750;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #a7f3c3;
+            box-shadow: 0 0 12px #a7f3c399;
         }
 
         h1 {
-            text-align: center;
-            color: #0f766e;
-            margin-bottom: 8px;
+            max-width: 620px;
+            margin: 0;
+            font-size: clamp(32px, 5vw, 48px);
+            letter-spacing: -.045em;
+            line-height: 1.06;
         }
 
         .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 30px;
+            max-width: 540px;
+            margin: 14px 0 0;
+            color: #d1e9df;
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        .content {
+            padding: 34px 48px 28px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 34px;
+            place-items: center;
+            border: 1px solid #d6e9e0;
+            border-radius: 11px;
+            background: #edf7f1;
+            color: var(--green);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 17px;
+            letter-spacing: -.02em;
+        }
+
+        .section-heading p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 13px;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 13px;
+        }
+
+        .field {
+            min-width: 0;
+            padding: 15px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fcfdfc;
+            transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+        }
+
+        .field:focus-within {
+            transform: translateY(-2px);
+            border-color: #71b7a0;
+            box-shadow: 0 0 0 3px #18856c15;
         }
 
         label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 7px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: #27453e;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .unit {
+            color: #81928c;
+            font-size: 11px;
+            font-weight: 500;
         }
 
         input {
             width: 100%;
-            padding: 11px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 15px;
+            padding: 10px 11px;
+            border: 1px solid #e0e9e4;
+            border-radius: 9px;
+            outline: none;
+            background: white;
+            color: var(--ink);
+            font: inherit;
+            font-size: 14px;
+            transition: border-color .18s ease;
+        }
+
+        input:focus {
+            border-color: var(--green);
+        }
+
+        input::placeholder {
+            color: #a1b1ab;
         }
 
         .range {
-            color: #64748b;
+            margin-top: 9px;
+            color: #81928c;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .submit-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .submit-hint {
+            color: var(--muted);
             font-size: 12px;
-            margin-top: 5px;
         }
 
         button {
-            width: 100%;
-            padding: 14px;
-            background: #0f766e;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 190px;
+            padding: 14px 19px;
+            border: 0;
+            border-radius: 11px;
+            background: linear-gradient(120deg, #137b68, #0f695a);
+            box-shadow: 0 8px 18px #137b6830;
             color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 750;
             cursor: pointer;
-            margin-top: 25px;
+            transition: transform .18s ease, box-shadow .18s ease;
         }
 
         button:hover {
-            background: #115e59;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 23px #137b6840;
+        }
+
+        button:focus-visible {
+            outline: 3px solid #48a98b80;
+            outline-offset: 3px;
+        }
+
+        .arrow {
+            font-size: 18px;
+            line-height: 12px;
+        }
+
+        .divider {
+            height: 1px;
+            margin: 30px 0;
+            border: 0;
+            background: var(--line);
+        }
+
+        .results-heading {
+            margin-bottom: 17px;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
         }
 
         .result {
-            text-align: center;
+            position: relative;
+            overflow: hidden;
             padding: 22px;
-            margin-top: 25px;
-            background: #ecfdf5;
-            border-radius: 10px;
+            border: 1px solid #dcece4;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #f2faf5, #ffffff 80%);
         }
 
-        .result h2 {
-            margin: 8px 0;
-            font-size: 32px;
+        .result::after {
+            position: absolute;
+            top: -38px;
+            right: -34px;
+            width: 110px;
+            height: 110px;
+            border: 1px solid #17836c14;
+            border-radius: 50%;
+            box-shadow: 0 0 0 16px #17836c08;
+            content: "";
         }
 
-        .error {
-            color: #b91c1c;
-            background: #fef2f2;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .warning {
-            color: #92400e;
-            background: #fffbeb;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .note {
-            color: #64748b;
+        .model-name {
+            display: block;
+            position: relative;
+            z-index: 1;
+            color: #55716a;
             font-size: 12px;
-            margin-top: 20px;
+            font-weight: 700;
+        }
+
+        .aqi-value {
+            margin: 11px 0 9px;
+            color: #123e35;
+            font-size: clamp(34px, 5vw, 44px);
+            font-weight: 780;
+            letter-spacing: -.055em;
+            line-height: 1;
+        }
+
+        .category {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e2f4e9;
+            color: #23744c;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .category::before {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            content: "";
+        }
+
+        .category.moderate {
+            background: #fff4d8;
+            color: #a36a0a;
+        }
+
+        .category.satisfactory {
+            background: #e7f0ff;
+            color: #426aaf;
+        }
+
+        .category.poor {
+            background: #ffeadc;
+            color: #b94e21;
+        }
+
+        .category.very-poor,
+        .category.severe,
+        .category.outside {
+            background: #fce7e8;
+            color: #ae3544;
+        }
+
+        .error,
+        .warning {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 13px;
             line-height: 1.5;
         }
 
-        @media (max-width: 600px) {
+        .error {
+            border: 1px solid #f4d2d2;
+            background: #fff5f4;
+            color: #a33c36;
+        }
+
+        .warning {
+            border: 1px solid #f2e3bc;
+            background: #fff9e9;
+            color: #8e6417;
+        }
+
+        .warning ul {
+            margin: 9px 0;
+            padding-left: 19px;
+        }
+
+        .note {
+            display: flex;
+            gap: 10px;
+            margin: 28px 0 0;
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
+            color: #788b84;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .note-mark {
+            flex: 0 0 auto;
+            color: var(--green);
+            font-weight: 800;
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 22px 14px;
+            }
+
+            .hero {
+                padding: 32px 28px;
+            }
+
+            .content {
+                padding: 28px;
+            }
+
             .form-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 0;
             }
 
             .container {
-                padding: 20px;
+                min-height: 100vh;
+                border: 0;
+                border-radius: 0;
+            }
+
+            .hero {
+                padding: 30px 22px;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+
+            .form-grid,
+            .results {
+                grid-template-columns: 1fr;
+            }
+
+            .submit-row {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .submit-hint {
+                order: 1;
+                text-align: center;
             }
         }
     </style>
@@ -132,76 +452,108 @@
 
 <body>
 <div class="container">
+    <header class="hero">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Air quality insights</p>
+        <h1>Understand the air around you.</h1>
+        <p class="subtitle">
+            Enter pollutant measurements to estimate AQI with two machine-learning
+            models and compare their results.
+        </p>
+    </header>
 
-    <h1>AQI Prediction System</h1>
-    <p class="subtitle">
-        Enter pollutant measurements to estimate the Air Quality Index.
-    </p>
-
-    <form method="POST">
-        <div class="form-grid">
-
-            {% for feature in features %}
-            <div>
-                <label for="{{ feature }}">{{ feature }}</label>
-
-                <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    id="{{ feature }}"
-                    name="{{ feature }}"
-                    placeholder="Enter {{ feature }}"
-                    value="{{ values.get(feature, '') }}"
-                    required
-                >
-
-                <div class="range">
-                    Training-data range:
-                    {{ "%.2f"|format(ranges[feature]["min"]) }}
-                    –
-                    {{ "%.2f"|format(ranges[feature]["max"]) }}
+    <main class="content">
+        <form method="POST">
+            <div class="section-heading">
+                <span class="step">01</span>
+                <div>
+                    <h2>Pollutant measurements</h2>
+                    <p>Use values from your monitoring station or dataset.</p>
                 </div>
             </div>
-            {% endfor %}
 
-        </div>
-
-        <button type="submit">Predict AQI</button>
-    </form>
-
-    {% if error %}
-        <div class="error">
-            {{ error }}
-        </div>
-    {% endif %}
-
-    {% if warnings %}
-        <div class="warning">
-            <strong>Range warning:</strong>
-            <ul>
-                {% for warning in warnings %}
-                    <li>{{ warning }}</li>
+            <div class="form-grid">
+                {% for feature in features %}
+                <div class="field">
+                    <label for="{{ feature }}">
+                        {{ feature }} <span class="unit">({{ units[feature] }})</span>
+                    </label>
+                    <input
+                        type="number"
+                        step="any"
+                        min="0"
+                        id="{{ feature }}"
+                        name="{{ feature }}"
+                        placeholder="Enter value"
+                        value="{{ values.get(feature, '') }}"
+                        required
+                    >
+                </div>
                 {% endfor %}
-            </ul>
-            Prediction may be less reliable outside the training ranges.
-        </div>
-    {% endif %}
+            </div>
 
-    {% if prediction is not none %}
-        <div class="result">
-            <p>Predicted Air Quality Index</p>
-            <h2>{{ "%.2f"|format(prediction) }}</h2>
-            <strong>{{ category }}</strong>
-        </div>
-    {% endif %}
+            <div class="submit-row">
+                <span class="submit-hint">All measurements are required to compare both models.</span>
+                <button type="submit">Prediction AQI <span class="arrow" aria-hidden="true">→</span></button>
+            </div>
+        </form>
 
-    <p class="note">
-        This is a machine-learning estimate, not an official air-quality
-        measurement. Enter pollutant values in the same units and measurement
-        format as the training dataset.
-    </p>
+        {% if error %}
+            <div class="error" role="alert">{{ error }}</div>
+        {% endif %}
 
+        {% if warnings %}
+            <div class="warning" role="status">
+                <strong>Some values are outside the training range.</strong>
+                <ul>
+                    {% for warning in warnings %}
+                        <li>{{ warning }}</li>
+                    {% endfor %}
+                </ul>
+                Predictions may be less reliable for these measurements.
+            </div>
+        {% endif %}
+
+        {% if predictions %}
+            <hr class="divider">
+            <div class="section-heading results-heading">
+                <span class="step">02</span>
+                <div>
+                    <h2>Your model comparison</h2>
+                    <p>Both models used the pollutant measurements above.</p>
+                </div>
+            </div>
+            <div class="results">
+                {% for result in predictions %}
+                    <article class="result">
+                        <span class="model-name">{{ result.name }}</span>
+                        <div class="aqi-value">{{ "%.2f"|format(result.aqi) }}</div>
+                        {% if result.aqi < 0 or result.aqi > 500 %}
+                            {% set category_class = "outside" %}
+                        {% elif result.aqi <= 50 %}
+                            {% set category_class = "good" %}
+                        {% elif result.aqi <= 100 %}
+                            {% set category_class = "satisfactory" %}
+                        {% elif result.aqi <= 200 %}
+                            {% set category_class = "moderate" %}
+                        {% elif result.aqi <= 300 %}
+                            {% set category_class = "poor" %}
+                        {% elif result.aqi <= 400 %}
+                            {% set category_class = "very-poor" %}
+                        {% else %}
+                            {% set category_class = "severe" %}
+                        {% endif %}
+                        <span class="category {{ category_class }}">{{ result.category }}</span>
+                    </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <p class="note">
+            <span class="note-mark" aria-hidden="true">i</span>
+            <span>This is a machine-learning estimate, not an official air-quality measurement.
+            Enter pollutant values in the same units and format as the training dataset.</span>
+        </p>
+    </main>
 </div>
 </body>
 </html>
