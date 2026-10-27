@@ -391,6 +391,11 @@
             font-weight: 800;
         }
 
+        .field input::-webkit-outer-spin-button,
+        .field input::-webkit-inner-spin-button {
+            margin: 0;
+        }
+
         @media (max-width: 760px) {
             body {
                 padding: 22px 14px;
@@ -456,8 +461,8 @@
         <p class="eyebrow"><span class="eyebrow-dot"></span> Air quality insights</p>
         <h1>Understand the air around you.</h1>
         <p class="subtitle">
-            Enter pollutant measurements to estimate AQI with two machine-learning
-            models and compare their results.
+            Enter pollutant and weather measurements to estimate AQI with two
+            machine-learning models and compare their results.
         </p>
     </header>
 
@@ -466,7 +471,7 @@
             <div class="section-heading">
                 <span class="step">01</span>
                 <div>
-                    <h2>Pollutant measurements</h2>
+                    <h2>Pollutant and weather measurements</h2>
                     <p>Use values from your monitoring station or dataset.</p>
                 </div>
             </div>
@@ -475,25 +480,30 @@
                 {% for feature in features %}
                 <div class="field">
                     <label for="{{ feature }}">
-                        {{ feature }} <span class="unit">({{ units[feature] }})</span>
+                        {{ labels[feature] }} <span class="unit">({{ units[feature] }})</span>
                     </label>
                     <input
                         type="number"
                         step="any"
-                        min="0"
+                        min="{{ input_limits[feature]['min'] }}"
+                        max="{{ input_limits[feature]['max'] }}"
                         id="{{ feature }}"
                         name="{{ feature }}"
                         placeholder="Enter value"
                         value="{{ values.get(feature, '') }}"
                         required
                     >
+                    <div class="range">
+                        Allowed: {{ input_limits[feature]['min'] }} to {{ input_limits[feature]['max'] }} {{ units[feature] }}.
+                        Training data: {{ '%.2f'|format(ranges[feature]['min']) }}–{{ '%.2f'|format(ranges[feature]['max']) }}.
+                    </div>
                 </div>
                 {% endfor %}
             </div>
 
             <div class="submit-row">
                 <span class="submit-hint">All measurements are required to compare both models.</span>
-                <button type="submit">Prediction AQI <span class="arrow" aria-hidden="true">→</span></button>
+                <button type="submit">Predict AQI <span class="arrow" aria-hidden="true">→</span></button>
             </div>
         </form>
 
@@ -503,13 +513,13 @@
 
         {% if warnings %}
             <div class="warning" role="status">
-                <strong>Some values are outside the training range.</strong>
+                <strong>Some values are outside the model's training range.</strong>
                 <ul>
                     {% for warning in warnings %}
                         <li>{{ warning }}</li>
                     {% endfor %}
                 </ul>
-                Predictions may be less reliable for these measurements.
+                These values are allowed, but predictions may be less reliable because the model saw fewer similar examples during training.
             </div>
         {% endif %}
 
@@ -519,7 +529,7 @@
                 <span class="step">02</span>
                 <div>
                     <h2>Your model comparison</h2>
-                    <p>Both models used the pollutant measurements above.</p>
+                    <p>Both models used the measurements above.</p>
                 </div>
             </div>
             <div class="results">
